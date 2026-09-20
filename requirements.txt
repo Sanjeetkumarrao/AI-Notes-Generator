@@ -2,3 +2,4 @@ streamlit
 psycopg2-binary
 PyPDF2
 google-genai
+bcrypt
