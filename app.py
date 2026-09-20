@@ -1,13 +1,14 @@
 import streamlit as st
+import os
 import psycopg2
 from PyPDF2 import PdfReader
 from google import genai
 
-client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def db():
-    return psycopg2.connect(st.secrets["DATABASE_URL"])
+    return psycopg2.connect(os.getenv("DATABASE_URL"))
 
 
 st.title("AI Notes Generator")
