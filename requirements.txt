@@ -1,4 +1,4 @@
 streamlit
-mysql-connector-python
+psycopg2-binary
 PyPDF2
 google-genai

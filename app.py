@@ -1,5 +1,5 @@
 import streamlit as st
-import mysql.connector
+import psycopg2
 from PyPDF2 import PdfReader
 from google import genai
 
@@ -7,12 +7,7 @@ client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 
 def db():
-    return mysql.connector.connect(
-        host="mysql",
-        user="root",
-        password="root",
-        database="ai_notes"
-    )
+    return psycopg2.connect(st.secrets["DATABASE_URL"])
 
 
 st.title("AI Notes Generator")
@@ -29,15 +24,23 @@ if menu == "Register":
         c = d.cursor()
 
         c.execute(
-            "CREATE TABLE IF NOT EXISTS users(username VARCHAR(50),password VARCHAR(50))"
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                username VARCHAR(50),
+                password VARCHAR(50)
+            )
+            """
         )
 
         c.execute(
-            "INSERT INTO users VALUES(%s,%s)",
+            "INSERT INTO users (username, password) VALUES (%s, %s)",
             (u, p)
         )
 
         d.commit()
+        c.close()
+        d.close()
+
         st.success("Registered")
 
 
@@ -50,7 +53,7 @@ if menu == "Login":
         c = d.cursor()
 
         c.execute(
-            "SELECT * FROM users WHERE username=%s AND password=%s",
+            "SELECT * FROM users WHERE username = %s AND password = %s",
             (u, p)
         )
 
@@ -59,6 +62,9 @@ if menu == "Login":
             st.success("Logged in")
         else:
             st.error("Invalid")
+
+        c.close()
+        d.close()
 
 
 if "u" in st.session_state:
@@ -70,6 +76,7 @@ if "u" in st.session_state:
 
         for p in r.pages:
             text = p.extract_text()
+
             if text:
                 t += text
 
